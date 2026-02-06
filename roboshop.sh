@@ -57,7 +57,7 @@ do
                 ]
                 }' 
 
-    echo "records update and creasted for  $instace"
+    echo "records update and creasted for  $instance"
         
 
 done
