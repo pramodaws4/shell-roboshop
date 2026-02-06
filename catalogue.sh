@@ -7,7 +7,7 @@ R='\e[31m' #red
 G='\e[32m' #green
 Y='\e[33m' #yellow
 B='\e[34m' ##blue
-D='\e[0m' ##default color
+N='\e[0m' ##default color
 
 if [ $USERID -ne 0 ]; then
 echo "Please run this root user access." | tee -a $LOG_FILE
@@ -48,3 +48,24 @@ validate $? "creating app directory"
 
 curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip &>> $LOG_FILE
 validate $? "downloading the catalogue code"
+
+cd /app &>> $LOG_FILE
+validate $? "moving to app directory"
+
+unzip /tmp/catalogue.zip &>> $LOG_FILE
+validate $? "unzipng the code"
+
+cd /app &>> $LOG_FILE
+validate $? "moving to app directory"
+
+npm install &>> $LOG_FILE
+validate $? "intalling dependencys"
+
+cp catalogue.service /etc/systemd/system/catalogue.service $LOG_FILE
+validate $? "created systemctl service file "
+
+systemctl daemon-reload
+systemctl enable catalogue 
+systemctl start catalogue
+validate $? "crearestating enable and disable systemctl service catalogue "
+
