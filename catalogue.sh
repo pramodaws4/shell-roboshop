@@ -70,17 +70,20 @@ validate $? "intalling dependencys"
 #validate $? "created systemctl service file "
 
 cp $SCRIPT_DIR/catalogue.service /etc/systemd/system/catalogue.service
-VALIDATE $? "Created systemctl service"
+validate $? "Created systemctl service"
 
 systemctl daemon-reload
 systemctl enable catalogue &>> $LOG_FILE
 systemctl start catalogue
 validate $? "crearestating enable and disable systemctl service catalogue "
 
-cp $SCRIPT_DIR/mongo.repo /etc/yum.repos.d/mongo.repo &>> $LOG_FILE
-dnf install mongodb-mongosh -y
+#cp $SCRIPT_DIR/mongo.repo /etc/yum.repos.d/mongo.repo &>> $LOG_FILE
+#dnf install mongodb-mongosh -y
 
-INDEX=$(mongosh --host $MONGODB_HOST --quiet  --eval 'db.getMongo().getDBNames().indexOf("catalogue")')
+cp $SCRIPT_DIR/mongo.repo /etc/yum.repos.d/mongo.repo &>>$LOGS_FILE
+dnf install mongodb-mongosh -y 
+
+INDEX=$(mongosh --host $MONGODB_HOST --quiet  --eval 'db.getMongo().getDBNames().indexOf("catalogue")') &>> $LOG_FILE
 
 if [ $INDEX -le 0 ]; then
     mongosh --host $MONGODB_HOST </app/db/master-data.js
@@ -89,6 +92,6 @@ else
     echo -e "Products already loaded ... $Y SKIPPING $N"
 fi
 
-systemctl restart catalogue
+systemctl restart catalogue &>> $LOG_FILE
 validate $? "Restarting catalogue"
 
