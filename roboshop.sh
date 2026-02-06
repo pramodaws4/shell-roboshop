@@ -1,63 +1,43 @@
 #!/bin/bash
 
-SG_ID="sg-00014de2d5b7245ea"    
-AMI_ID="ami-0220d79f3f480ecf5"
-ZONE_ID="Z07833774KRBYAM5PAXD"
-DOMAIN_NAME="pramod88s.online"
+USERID=$(id -u)
+LOGS_FOLDER="/var/log/shell-roboshop"
+LOGS_FILE="$LOGS_FOLDER/$0.log"
+R="\e[31m"
+G="\e[32m"
+Y="\e[33m"
+N="\e[0m"
 
-for instance in $@
-do
-    instance_id=$( aws ec2 run-instances \
-    --image-id $AMI_ID \
-    --instance-type t3.micro \
-    --security-group-ids $SG_ID \
-    --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$instance}]" \
-    --query 'Instances[0].InstanceId' \
-    --output text )
+if [ $USERID -ne 0 ]; then
+    echo -e "$R Please run this script with root user access $N" | tee -a $LOGS_FILE
+    exit 1
+fi
 
-    if [ $instance == "frontend" ]; then
-       IP=$(
-        aws ec2 describe-instances \
-            --instance-ids $instance_id \
-            --query 'Reservations[*].Instances[*].PublicIpAddress' \
-            --output text
-    )
-      RECORD_NAME=$DOMAIN_NAME    
+mkdir -p $LOGS_FOLDER
+
+VALIDATE(){
+    if [ $1 -ne 0 ]; then
+        echo -e "$2 ... $R FAILURE $N" | tee -a $LOGS_FILE
+        exit 1
     else
-       IP=$(
-        aws ec2 describe-instances \
-            --instance-ids $instance_id \
-            --query 'Reservations[*].Instances[*].PrivateIpAddress' \
-            --output text
-    )
-    RECORD_NAME=$instance.$DOMAIN_NAME
+        echo -e "$2 ... $G SUCCESS $N" | tee -a $LOGS_FILE
     fi
+}
 
-    echo "ip adress : " $IP
+cp mongo.repo /etc/yum.repos.d/mongo.repo
+VALIDATE $? "Copying Mongo Repo" 
 
-    aws route53 change-resource-record-sets \
-    --hosted-zone-id $ZONE_ID \
-    --change-batch '
-                {
-                "Comment": "Updating a record",
-                "Changes": [
-                    {
-                    "Action": "UPSERT",
-                    "ResourceRecordSet": {
-                        "Name": "'$RECORD_NAME'",
-                        "Type": "CNAME",
-                        "TTL": 1,
-                        "ResourceRecords": [
-                        {
-                            "Value": "'$IP'"
-                        }
-                        ]
-                    }
-                    }
-                ]
-                }' 
+dnf install mongodb-org -y &>>$LOGS_FILE
+VALIDATE $? "Installing MongoDB server"
 
-    echo "records update and creasted for  $instance"
-        
+systemctl enable mongod &>>$LOGS_FILE
+VALIDATE $? "Enable MongoDB"
 
-done
+systemctl start mongod
+VALIDATE $? "Start MongoDB"
+
+sed -i 's/127.0.0.1/0.0.0.0/g' /etc/mongod.conf
+VALIDATE $? "Allowing remote connections"
+
+systemctl restart mongod
+VALIDATE $? "Restarted MongoDB"
