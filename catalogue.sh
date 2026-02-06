@@ -66,8 +66,11 @@ validate $? "moving to app directory"
 npm install &>> $LOG_FILE
 validate $? "intalling dependencys"
 
+#cp $SCRIPT_DIR/catalogue.service /etc/systemd/system/catalogue.service &>> $LOG_FILE
+#validate $? "created systemctl service file "
+
 cp $SCRIPT_DIR/catalogue.service /etc/systemd/system/catalogue.service
-validate $? "Created systemctl service"
+VALIDATE $? "Created systemctl service"
 
 systemctl daemon-reload
 systemctl enable catalogue &>> $LOG_FILE
@@ -77,5 +80,15 @@ validate $? "crearestating enable and disable systemctl service catalogue "
 cp $SCRIPT_DIR/mongo.repo /etc/yum.repos.d/mongo.repo &>> $LOG_FILE
 dnf install mongodb-mongosh -y
 
-mongosh --host $MONGODB_HOST </app/db/master-data.js &>> $LOG_FILE
+INDEX=$(mongosh --host $MONGODB_HOST --quiet  --eval 'db.getMongo().getDBNames().indexOf("catalogue")')
+
+if [ $INDEX -le 0 ]; then
+    mongosh --host $MONGODB_HOST </app/db/master-data.js
+    validate $? "Loading products"
+else
+    echo -e "Products already loaded ... $Y SKIPPING $N"
+fi
+
+systemctl restart catalogue
+validate $? "Restarting catalogue"
 
