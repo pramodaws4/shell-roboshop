@@ -9,6 +9,7 @@ Y='\e[33m' #yellow
 B='\e[34m' ##blue
 N='\e[0m' ##default color
 SCRIPT_DIR=$PWD
+MONGODB_HOST=mongodb.pramod88s.online
 
 if [ $USERID -ne 0 ]; then
 echo "Please run this root user access." | tee -a $LOG_FILE
@@ -65,11 +66,16 @@ validate $? "moving to app directory"
 npm install &>> $LOG_FILE
 validate $? "intalling dependencys"
 
-cp $SCRIPT_DIR/catalogue.service /etc/systemd/system/catalogue.service $LOG_FILE
-validate $? "created systemctl service file "
+cp $SCRIPT_DIR/catalogue.service /etc/systemd/system/catalogue.service
+validate $? "Created systemctl service"
 
 systemctl daemon-reload
-systemctl enable catalogue 
+systemctl enable catalogue &>> $LOG_FILE
 systemctl start catalogue
 validate $? "crearestating enable and disable systemctl service catalogue "
+
+cp $SCRIPT_DIR/mongo.repo /etc/yum.repos.d/mongo.repo &>> $LOG_FILE
+dnf install mongodb-mongosh -y
+
+mongosh --host $MONGODB_HOST </app/db/master-data.js &>> $LOG_FILE
 
