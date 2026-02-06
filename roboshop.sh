@@ -4,7 +4,7 @@ SG_ID="sg-00014de2d5b7245ea"
 AMI_ID="ami-0220d79f3f480ecf5"
 ZONE_ID="Z07833774KRBYAM5PAXD"
 DOMAIN_NAME="pramod88s.online"
-#!/bin/bash
+
 
 for instance in $@
 do
