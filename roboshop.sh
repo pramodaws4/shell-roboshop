@@ -49,7 +49,7 @@ do
                         "TTL": 1,
                         "ResourceRecords": [
                         {
-                            "Value": "'$ip'"
+                            "Value": "'$IP'"
                         }
                         ]
                     }
@@ -57,7 +57,7 @@ do
                 ]
                 }' 
 
-    echo "instace creasted $instace"
+    echo "records update and creasted for  $instace"
         
 
 done
