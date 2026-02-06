@@ -28,30 +28,23 @@ fi
 dnf module disable nodejs -y &>> $LOG_FILE
 validate $? "disabling nodejs default virsion"
 
-dnf module enable nodejs:20 -y
+dnf module enable nodejs:20 -y &>> $LOG_FILE
 validate $? "enabling new nodejs virsion"
 
-
-
-dnf install nodejs -y
+dnf install nodejs -y &>> $LOG_FILE
 validate $? "installing nodejs "
 
-useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop
+id roboshop &>> $LOG_FILE
+if [ $? -ne 0]; then 
+useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop &>> $LOG_FILE
 validate $? "adding user  "
+else
+ echo -e "rosboshop user already exit.. $Y Skipping $N"
+fi
 
 
-mkdir /app 
+mkdir -p /app &>> $LOG_FILE
 validate $? "creating app directory"
 
-curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip 
-cd /app 
-unzip /tmp/catalogue.zip
-
-
-cd /app 
-npm install 
-
-systemctl daemon-reload
-
-systemctl enable catalogue 
-systemctl start catalogue
+curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip &>> $LOG_FILE
+validate $? "downloading the catalogue code"
