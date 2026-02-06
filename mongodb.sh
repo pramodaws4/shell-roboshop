@@ -1,7 +1,7 @@
 #!/bin/bash
 
 USERID=$(id -u)
-LOG_FOLDER="/ver/log/shell-roboshop"
+LOG_FOLDER="/var/log/shell-roboshop"
 LOG_FILE="$LOG_FILE/$0.log"
 R='\e[31m' #red
 G='\e[32m' #green
@@ -11,6 +11,7 @@ D='\e[0m' ##default color
 
 if [ $USERID -ne 0 ]; then
 echo "Please run this root user access." | tee -a $LOG_FILE
+    exit 1
 fi
 
 mkdir -p $LOG_FOLDER
@@ -39,5 +40,5 @@ validate $? "starts the mongodb "
 sed -i 's/127.0.0.1/0.0.0.0/g' /etc/mongod.conf
 validate $? "allowing remote connections "
 
-systemctl restart mongodb
+systemctl restart mongod
 validate $? "Restarted MongoDB"
