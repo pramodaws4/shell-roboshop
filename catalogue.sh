@@ -8,6 +8,7 @@ G='\e[32m' #green
 Y='\e[33m' #yellow
 B='\e[34m' ##blue
 N='\e[0m' ##default color
+SCRIPT_DIR=$PWD
 
 if [ $USERID -ne 0 ]; then
 echo "Please run this root user access." | tee -a $LOG_FILE
@@ -64,7 +65,7 @@ validate $? "moving to app directory"
 npm install &>> $LOG_FILE
 validate $? "intalling dependencys"
 
-cp catalogue.service /etc/systemd/system/catalogue.service $LOG_FILE
+cp $SCRIPT_DIR/catalogue.service /etc/systemd/system/catalogue.service $LOG_FILE
 validate $? "created systemctl service file "
 
 systemctl daemon-reload
