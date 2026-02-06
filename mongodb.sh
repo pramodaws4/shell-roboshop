@@ -32,6 +32,7 @@ validate $? "installing mongodb server"
 
 systemctl enable mongod 
 validate $? "enable mongodb "
+
 systemctl start mongod 
 validate $? "starts the mongodb "
 
