@@ -2,6 +2,8 @@
 
 SG_ID="sg-00014de2d5b7245ea"    
 AMI_ID="ami-0220d79f3f480ecf5"
+ZONE_ID="Z07833774KRBYAM5PAXD"
+DOMAIN_NAME="pramod88s.online"
 
 for instance in $@
 do
@@ -20,6 +22,7 @@ do
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --output text
     )
+      RECORD_NAME=$DOMAIN_NAME    
     else
        IP=$(
         aws ec2 describe-instances \
@@ -27,5 +30,34 @@ do
             --query 'Reservations[*].Instances[*].PrivateIpAddress' \
             --output text
     )
+    RECORD_NAME=$instance.$DOMAIN_NAME
     fi
+
+    echo "ip adress : " $IP
+
+    aws route53 change-resource-record-sets \
+    --hosted-zone-id $ZONE_ID \
+    --change-batch '
+                {
+                "Comment": "Updating a record",
+                "Changes": [
+                    {
+                    "Action": "UPSERT",
+                    "ResourceRecordSet": {
+                        "Name": "'$RECORD_NAME'",
+                        "Type": "CNAME",
+                        "TTL": 1,
+                        "ResourceRecords": [
+                        {
+                            "Value": "'$ip'"
+                        }
+                        ]
+                    }
+                    }
+                ]
+                }' 
+
+    echo "instace creasted $instace"
+        
+
 done
