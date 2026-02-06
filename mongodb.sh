@@ -24,8 +24,8 @@ else
 fi
 }
 
-cp mongo.repo etc/mongo.repos.d/mongo.repo 
-validate $? "copping mongos repo"
+cp mongo.repo /etc/yum.repos.d/mongo.repo
+VALIDATE $? "Copying Mongo Repo" 
 
 dnf install mongodb-org -y 
 validate $? "installing mongodb server"
