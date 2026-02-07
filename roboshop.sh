@@ -45,7 +45,7 @@ do
                     "Action": "UPSERT",
                     "ResourceRecordSet": {
                         "Name": "'$RECORD_NAME'",
-                        "Type": "CNAME",
+                        "Type": "A",
                         "TTL": 1,
                         "ResourceRecords": [
                         {
