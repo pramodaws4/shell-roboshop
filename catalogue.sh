@@ -9,7 +9,7 @@ Y='\e[33m' #yellow
 B='\e[34m' ##blue
 N='\e[0m' ##default color
 SCRIPT_DIR=$PWD
-MONGODB_HOST=mongodb.pramod88s.online
+MONGODB_HOST=172.31.30.91
           
 
 if [ $USERID -ne 0 ]; then
