@@ -1,0 +1,15 @@
+
+[Unit]
+Description = Cart Service
+[Service]
+User=roboshop
+// highlight-start
+Environment=REDIS_HOST=redies.pramod88s.online
+Environment=CATALOGUE_HOST=catalogue.pramod88s.online
+Environment=CATALOGUE_PORT=8080
+// highlight-end
+ExecStart=/bin/node /app/server.js
+SyslogIdentifier=cart
+
+[Install]
+WantedBy=multi-user.target
