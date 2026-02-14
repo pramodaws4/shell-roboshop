@@ -1,3 +1,5 @@
+#!/bin/bash
+
 USERID=$(id -u)
 LOGS_FOLDER="/var/log/shell-roboshop"
 LOGS_FILE="$LOGS_FOLDER/$0.log"
@@ -23,11 +25,12 @@ VALIDATE(){
 }
 
 dnf install mysql-server -y &>>$LOGS_FILE
-VALIDATE $? "installing My-sql" 
+VALIDATE $? "Install MySQL server"
 
-systemctl enable mysqld
+systemctl enable mysqld &>>$LOGS_FILE
 systemctl start mysqld  
-VALIDATE $? "enable and restart mysql"
+VALIDATE $? "Enable and start mysql"
 
+# get the password from user
 mysql_secure_installation --set-root-pass RoboShop@1
-VALIDATE $? "serting the root password "
+VALIDATE $? "Setup root password"
